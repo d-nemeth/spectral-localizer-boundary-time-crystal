@@ -97,7 +97,8 @@ Tools for computing:
 Recommended using **conda**:
 
 ```bash
-git clone <d-nemeth/spectral-localizer-boundary-time-crystal>
+git clone https://github.com/d-nemeth/spectral-localizer-boundary-time-crystal.git
+cd spectral-localizer-boundary-time-crystal
 ```
 
 ## 2. Create a Python environment
@@ -161,6 +162,7 @@ spectral-localizer
 ## Topological Islands
 
 - Compute the localizer index as a function of the localizer strength using `python diagnostics/kappa_sweep_complex_plane.py`.
+
 
 
 
