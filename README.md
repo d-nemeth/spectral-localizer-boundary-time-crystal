@@ -16,6 +16,22 @@ The methods implemented here allow one to:
 - visualize topological domains across an emergent chain
 - visualize topological islands in the complex frequency plane
 
+# Citation
+
+If you use our work or build upon our code please cite our work:
+
+@misc{nemeth2026topologicalboundarytimecrystal,
+      title={Topological Boundary Time Crystal Oscillations}, 
+      author={Dominik Nemeth and Ahsan Nazir and Alessandro Principi and Robert-Jan Slager},
+      year={2026},
+      eprint={2602.17765},
+      archivePrefix={arXiv},
+      primaryClass={quant-ph},
+      url={https://arxiv.org/abs/2602.17765}, 
+}
+
+https://arxiv.org/abs/2602.17765
+
 # Spectral Localizer for Boundary Time Crystals
 
 The code implements both standard and accelerated methods for evaluating localizer indices and visualizing the resulting topological structure of Liouvillian spectra.
@@ -145,6 +161,7 @@ spectral-localizer
 ## Topological Islands
 
 - Compute the localizer index as a function of the localizer strength using `python diagnostics/kappa_sweep_complex_plane.py`.
+
 
 
 
