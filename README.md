@@ -20,6 +20,7 @@ The methods implemented here allow one to:
 
 If you use our work or build upon our code please cite our work:
 
+```text
 @misc{nemeth2026topologicalboundarytimecrystal,
       title={Topological Boundary Time Crystal Oscillations}, 
       author={Dominik Nemeth and Ahsan Nazir and Alessandro Principi and Robert-Jan Slager},
@@ -29,8 +30,7 @@ If you use our work or build upon our code please cite our work:
       primaryClass={quant-ph},
       url={https://arxiv.org/abs/2602.17765}, 
 }
-
-https://arxiv.org/abs/2602.17765
+```
 
 # Spectral Localizer for Boundary Time Crystals
 
@@ -161,6 +161,10 @@ spectral-localizer
 ## Topological Islands
 
 - Compute the localizer index as a function of the localizer strength using `python diagnostics/kappa_sweep_complex_plane.py`.
+
+
+
+
 
 
 
