@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spectral-localizer"
+version = "0.1.0"
+description = "Spectral localizer diagnostics for boundary time crystals"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name="Dominik Nemeth"}]
+
+dependencies = [
+  "numpy",
+  "scipy",
+  "matplotlib",
+  "qutip",
+  "joblib",
+  "tqdm",
+]
+
+[project.optional-dependencies]
+plots = ["scienceplots"]
+dev = [
+  "black",
+  "ruff",
+  "mypy",
+  "pytest",
+  "ipykernel",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

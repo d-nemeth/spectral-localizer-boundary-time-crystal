@@ -1,0 +1,39 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Compiled extensions
+*.so
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# MacOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Output files
+*.npy
+*.npz
+*.pkl
+*.hdf5
+*.pdf
+*.png
+
+# Project outputs
+checkpoints_localizer/
+outputs/
+figures/
+
+# Temporary files
+*.log
+*.tmp
