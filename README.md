@@ -1,4 +1,4 @@
-# Scientific Background
+# Physics Background
 
 Boundary time crystals (BTCs) are non-equilibrium phases that emerge in open
 many-body quantum systems due to the interplay of coherent dynamics and
@@ -143,4 +143,5 @@ spectral-localizer
 ## Topological Islands
 
 - Compute the localizer index as a function of the localizer strength using `python diagnostics/kappa_sweep_complex_plane.py`.
+
 
