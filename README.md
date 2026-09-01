@@ -169,9 +169,9 @@ The collective-spin adjoint generators are
 ```math
 \mathcal K_\alpha
 =
-\operatorname{spre}(J_\alpha)
+\mathrm{spre}(J_\alpha)
 -
-\operatorname{spost}(J_\alpha),
+\mathrm{spost}(J_\alpha),
 \qquad
 \alpha \in \{x,y,z\}.
 ```
@@ -243,11 +243,11 @@ A
 Its Hermitian real and imaginary parts are
 
 ```math
-\operatorname{Re}A
+\mathrm{Re}A
 =
 \frac{A+A^\dagger}{2},
 \qquad
-\operatorname{Im}A
+\mathrm{Im}A
 =
 \frac{A-A^\dagger}{2i}.
 ```
@@ -257,9 +257,9 @@ The spectral localizer is
 ```math
 L_{(x_0,\lambda_0)}(\mathcal L,\mathcal X)
 =
-\operatorname{Re}A \otimes \sigma_x
+\mathrm{Re}A \otimes \sigma_x
 +
-\operatorname{Im}A \otimes \sigma_y
+\mathrm{Im}A \otimes \sigma_y
 +
 \kappa(\mathcal X-x_0I)\otimes\sigma_z.
 ```
@@ -274,7 +274,7 @@ The localizer index is half of the matrix signature:
 \nu^L_{(x_0,\lambda_0)}
 =
 \frac{1}{2}
-\operatorname{sig}
+\mathrm{sig}
 \left[
 L_{(x_0,\lambda_0)}
 \right].
@@ -283,7 +283,7 @@ L_{(x_0,\lambda_0)}
 where
 
 ```math
-\operatorname{sig}(L)
+\mathrm{sig}(L)
 =
 n_+(L)-n_-(L),
 ```
@@ -307,7 +307,7 @@ The localizer gap is
 :
 \ell
 \in
-\operatorname{spec}
+\mathrm{spec}
 \left(
 L_{(x_0,\lambda_0)}
 \right)
@@ -356,9 +356,9 @@ Sylvester's law of inertia states that a congruence transformation preserves
 the numbers of positive, negative, and zero eigenvalues. Therefore,
 
 ```math
-\operatorname{inertia}(H)
+\mathrm{inertia}(H)
 =
-\operatorname{inertia}(D).
+\mathrm{inertia}(D).
 ```
 
 The signature can therefore be found by inspecting the small blocks of $D$,
