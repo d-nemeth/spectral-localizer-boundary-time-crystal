@@ -1,7 +1,20 @@
 # Spectral Localizer for Topological Boundary Time Crystals
 
-This repository contains the numerical implementation used to study topological
-boundary time crystal (BTC) oscillations in dissipative collective-spin systems.
+Numerical tools for studying spectral-localizer topology, operator-space
+delocalization, and harmonic dynamics in dissipative boundary time crystals.
+
+This repository accompanies the work
+
+> D. Nemeth, A. Nazir, A. Principi, and R.-J. Slager,  
+> *Topological Boundary Time Crystal Oscillations*,  
+> arXiv:2602.17765 (2026).
+
+The package provides numerical implementations for constructing collective-spin
+Liouvillians, resolving their operator-space structure, computing spectral
+localizer invariants, analysing Liouvillian eigenmodes, and reproducing the
+main and supplemental numerical results of the associated work.
+
+## Features
 
 The project provides tools to:
 
@@ -11,287 +24,8 @@ The project provides tools to:
 - accelerate index calculations using LDL factorization and matrix inertia;
 - resolve left and right Liouvillian eigenmodes along the emergent rank chain;
 - generate topological-domain and complex-frequency-island datasets;
-- simulate spin-correlation time series and their harmonic scaling;
+- simulate spin-correlation time series and harmonic scaling;
 - reproduce the associated main and supplemental figures.
-
-## Physical model
-
-The model consists of $N$ collectively coupled spin-$\tfrac12$ particles in
-the permutation-symmetric sector, with total angular momentum
-
-$$
-j=\frac{N}{2}.
-$$
-
-Its density matrix evolves according to
-
-$$
-\dot{\rho}
-=
--i[H,\rho]
-+
-\frac{\Gamma}{N}
-\left(
-J_-\rho J_+
--\frac{1}{2}\left\{J_+J_-,\rho\right\}
-\right),
-$$
-
-where
-
-$$
-H=\Omega J_x.
-$$
-
-Here, $\Omega$ is the coherent driving frequency and $\Gamma$ is the
-collective dissipation strength. In the code, the collapse operator is
-
-$$
-C=\sqrt{\frac{\Gamma}{N}}\,J_-,
-$$
-
-and QuTiP constructs the corresponding Liouvillian superoperator
-$\mathcal L$.
-
-The symmetric Hilbert-space dimension is $N+1$, so the Liouvillian acts on an
-operator space of dimension $(N+1)^2$.
-
-## Operator-space rank coordinate
-
-The collective-spin adjoint generators are
-
-$$
-\mathcal K_\alpha
-=
-\operatorname{spre}(J_\alpha)
--
-\operatorname{spost}(J_\alpha),
-\qquad
-\alpha\in\{x,y,z\}.
-$$
-
-Their Casimir operator is
-
-$$
-\mathcal K^2
-=
-\mathcal K_x^2+\mathcal K_y^2+\mathcal K_z^2.
-$$
-
-The eigenvectors of $\mathcal K^2$ can be labelled by tensor rank $k$ and
-magnetic index $q$:
-
-$$
-\mathcal K^2
-\lvert T_q^{(k)}\rangle\rangle
-=
-k(k+1)
-\lvert T_q^{(k)}\rangle\rangle,
-$$
-
-with
-
-$$
-k=0,1,\ldots,N,
-\qquad
-q=-k,-k+1,\ldots,k.
-$$
-
-This decomposition turns operator space into an emergent $k$-chain. The
-position operator used by the spectral localizer is
-
-$$
-\mathcal X
-=
-\sum_{k,q}
-k\,
-\lvert T_q^{(k)}\rangle\rangle
-\langle\langle T_q^{(k)}\rvert.
-$$
-
-Consequently, the eigenvalue of $\mathcal X$ identifies the tensor-rank
-position of an operator-space state.
-
-The package constructs this coordinate by diagonalizing $\mathcal K^2$,
-matching its eigenvalues to $k(k+1)$, and resolving the $q$ labels with
-$\mathcal K_z$.
-
-## Spectral localizer
-
-For a Liouvillian $\mathcal L$, operator-space coordinate $\mathcal X$,
-reference position $x_0$, reference complex frequency $\lambda_0$, and
-localizer strength $\kappa$, define
-
-$$
-A=\mathcal L-\lambda_0 I.
-$$
-
-Its Hermitian real and imaginary parts are
-
-$$
-\operatorname{Re}A=\frac{A+A^\dagger}{2},
-\qquad
-\operatorname{Im}A=\frac{A-A^\dagger}{2i}.
-$$
-
-The spectral localizer is
-
-$$
-L_{(x_0,\lambda_0)}(\mathcal L,\mathcal X)
-=
-\operatorname{Re}A\otimes\sigma_x
-+
-\operatorname{Im}A\otimes\sigma_y
-+
-\kappa(\mathcal X-x_0I)\otimes\sigma_z.
-$$
-
-It is Hermitian and has dimension $2(N+1)^2$.
-
-### Localizer index
-
-The localizer index is half of the matrix signature:
-
-$$
-\nu^L_{(x_0,\lambda_0)}
-=
-\frac{1}{2}
-\operatorname{sig}
-\left[
-L_{(x_0,\lambda_0)}
-\right],
-$$
-
-where
-
-$$
-\operatorname{sig}(L)=n_+(L)-n_-(L)
-$$
-
-and $n_+$ and $n_-$ are the numbers of positive and negative eigenvalues,
-respectively.
-
-A change in $\nu^L$ marks a topological boundary in either the rank coordinate
-$x_0$ or the complex-frequency plane $\lambda_0$.
-
-### Localizer gap
-
-The localizer gap is
-
-$$
-\mu_{(x_0,\lambda_0)}
-=
-\min
-\left\{
-|\ell|:
-\ell\in
-\operatorname{spec}
-\left(
-L_{(x_0,\lambda_0)}
-\right)
-\right\}.
-$$
-
-The gap closes when an eigenvalue of the localizer crosses zero, allowing the
-index to change.
-
-## Standard and accelerated implementations
-
-Two localizer implementations are included.
-
-### Standard implementation
-
-`standard_localizer.py` explicitly constructs the Hermitian localizer and uses
-a full Hermitian eigensolver. It returns both the localizer gap and the index
-and serves as the reference implementation.
-
-### Fast LDL implementation
-
-`fast_localizer.py` evaluates the index through an LDL factorization. In block
-form, the implementation works with
-
-$$
-L_{\mathrm{block}}
-=
-\begin{pmatrix}
-\kappa(\mathcal X-x_0I) & A \\
-A^\dagger & -\kappa(\mathcal X-x_0I)
-\end{pmatrix}.
-$$
-
-For a Hermitian matrix $H$, an LDL factorization gives
-
-$$
-H=LDL^\dagger,
-$$
-
-where $L$ is triangular and $D$ is block diagonal, with $1\times1$ and
-$2\times2$ pivot blocks.
-
-Sylvester's law of inertia states that a congruence transformation preserves
-the numbers of positive, negative, and zero eigenvalues. Therefore,
-
-$$
-\operatorname{inertia}(H)
-=
-\operatorname{inertia}(D).
-$$
-
-The signature can be found by inspecting the small blocks of $D$, avoiding a
-full diagonalization of the localizer. The package handles the sign convention
-associated with the chosen block ordering internally.
-
-The accelerated implementation also supports:
-
-- adaptive one-dimensional refinement near index changes;
-- inexpensive updates when only $x_0$ changes;
-- inexpensive updates when only $\lambda_0$ changes;
-- parallel coarse-grid and refined-cell calculations for complex-frequency
-  scans.
-
-## Liouvillian eigenmode delocalization
-
-For a right or left Liouvillian eigenmode
-$\lvert\psi_a\rangle\rangle$, its weight in tensor-rank sector $k$ is
-
-$$
-w_k^{(a)}
-=
-\sum_{q=-k}^{k}
-\left|
-\langle\langle T_q^{(k)}
-\vert
-\psi_a
-\rangle\rangle
-\right|^2.
-$$
-
-The numerical profiles are normalized so that
-
-$$
-\sum_k w_k^{(a)}=1.
-$$
-
-These distributions quantify how strongly an eigenmode is localized or
-delocalized along the emergent $k$-chain. The package computes the profiles
-for both left and right Liouvillian eigenvectors.
-
-## Package modules
-
-The installable Python package is located under `src/`.
-
-| Module | Purpose |
-| --- | --- |
-| `spectral_localizer.btc_model` | BTC parameters, collective-spin operators, Liouvillian construction, and operator-space coordinates |
-| `spectral_localizer.standard_localizer` | Direct localizer construction, gap, and signature-based index |
-| `spectral_localizer.fast_localizer` | LDL inertia calculation and adaptive rank-coordinate sweeps |
-| `spectral_localizer.kq_basis` | Construction of the spherical-tensor $(k,q)$ basis |
-| `spectral_localizer.mode_tools` | Left/right eigensystems and tensor-rank weight profiles |
-| `spectral_localizer.mode_table` | Sorting, displaying, and saving Liouvillian eigenvalue tables |
-| `run_utils.run_manager` | Creation of sequential `run_###` output directories |
-
-The most commonly used classes and functions are re-exported from
-`spectral_localizer`.
 
 ## Installation
 
@@ -318,6 +52,12 @@ Alternatively, using `venv`:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
+```
+
+On Windows:
+
+```powershell
+.venv\Scripts\activate
 ```
 
 ### 3. Install the package
@@ -372,6 +112,313 @@ gap, index = localizer_gap_and_index(localizer)
 print(f"localizer gap: {gap}")
 print(f"localizer index: {index}")
 ```
+
+## Physical model
+
+The model consists of $N$ collectively coupled spin-$\frac{1}{2}$ particles in
+the permutation-symmetric sector, with total angular momentum
+
+```math
+j = \frac{N}{2}.
+```
+
+Its density matrix evolves according to
+
+```math
+\dot{\rho}
+=
+-i[H,\rho]
++
+\frac{\Gamma}{N}
+\left(
+J_- \rho J_+
+-
+\frac{1}{2}
+\left\{
+J_+J_-,
+\rho
+\right\}
+\right).
+```
+
+where
+
+```math
+H = \Omega J_x.
+```
+
+Here, $\Omega$ is the coherent driving frequency and $\Gamma$ is the collective
+dissipation strength. In the code, the collapse operator is
+
+```math
+C
+=
+\sqrt{\frac{\Gamma}{N}}\,J_-,
+```
+
+and QuTiP constructs the corresponding Liouvillian superoperator
+$\mathcal L$.
+
+The symmetric Hilbert-space dimension is $N+1$, so the Liouvillian acts on an
+operator space of dimension $(N+1)^2$.
+
+## Operator-space rank coordinate
+
+The collective-spin adjoint generators are
+
+```math
+\mathcal K_\alpha
+=
+\operatorname{spre}(J_\alpha)
+-
+\operatorname{spost}(J_\alpha),
+\qquad
+\alpha \in \{x,y,z\}.
+```
+
+Their Casimir operator is
+
+```math
+\mathcal K^2
+=
+\mathcal K_x^2
++
+\mathcal K_y^2
++
+\mathcal K_z^2.
+```
+
+The eigenvectors of $\mathcal K^2$ can be labelled by tensor rank $k$ and
+magnetic index $q$:
+
+```math
+\mathcal K^2
+\lvert T_q^{(k)} \rangle\rangle
+=
+k(k+1)
+\lvert T_q^{(k)} \rangle\rangle,
+```
+
+with
+
+```math
+k=0,1,\ldots,N,
+\qquad
+q=-k,-k+1,\ldots,k.
+```
+
+This decomposition turns operator space into an emergent $k$-chain. The
+position operator used by the spectral localizer is
+
+```math
+\mathcal X
+=
+\sum_{k,q}
+k\,
+\lvert T_q^{(k)} \rangle\rangle
+\langle\langle T_q^{(k)} \rvert.
+```
+
+Consequently, the eigenvalue of $\mathcal X$ identifies the tensor-rank
+position of an operator-space state.
+
+The package constructs this coordinate by diagonalizing $\mathcal K^2$,
+matching its eigenvalues to $k(k+1)$, and resolving the $q$ labels using
+$\mathcal K_z$.
+
+## Spectral localizer
+
+For a Liouvillian $\mathcal L$, operator-space coordinate $\mathcal X$,
+reference position $x_0$, reference complex frequency $\lambda_0$, and
+localizer strength $\kappa$, define
+
+```math
+A
+=
+\mathcal L
+-
+\lambda_0 I.
+```
+
+Its Hermitian real and imaginary parts are
+
+```math
+\operatorname{Re}A
+=
+\frac{A+A^\dagger}{2},
+\qquad
+\operatorname{Im}A
+=
+\frac{A-A^\dagger}{2i}.
+```
+
+The spectral localizer is
+
+```math
+L_{(x_0,\lambda_0)}(\mathcal L,\mathcal X)
+=
+\operatorname{Re}A \otimes \sigma_x
++
+\operatorname{Im}A \otimes \sigma_y
++
+\kappa(\mathcal X-x_0I)\otimes\sigma_z.
+```
+
+It is Hermitian and has dimension $2(N+1)^2$.
+
+### Localizer index
+
+The localizer index is half of the matrix signature:
+
+```math
+\nu^L_{(x_0,\lambda_0)}
+=
+\frac{1}{2}
+\operatorname{sig}
+\left[
+L_{(x_0,\lambda_0)}
+\right].
+```
+
+where
+
+```math
+\operatorname{sig}(L)
+=
+n_+(L)-n_-(L),
+```
+
+and $n_+$ and $n_-$ are the numbers of positive and negative eigenvalues,
+respectively.
+
+A change in $\nu^L$ marks a topological boundary in either the rank coordinate
+$x_0$ or the complex-frequency plane $\lambda_0$.
+
+### Localizer gap
+
+The localizer gap is
+
+```math
+\mu_{(x_0,\lambda_0)}
+=
+\min
+\left\{
+|\ell|
+:
+\ell
+\in
+\operatorname{spec}
+\left(
+L_{(x_0,\lambda_0)}
+\right)
+\right\}.
+```
+
+The gap closes when an eigenvalue of the localizer crosses zero, allowing the
+index to change.
+
+## Standard and accelerated implementations
+
+Two spectral-localizer implementations are included.
+
+### Standard implementation
+
+`standard_localizer.py` explicitly constructs the Hermitian localizer and uses
+a full Hermitian eigensolver. It returns both the localizer gap and the index
+and serves as the reference implementation.
+
+### Fast LDL implementation
+
+`fast_localizer.py` evaluates the index through an LDL factorization. In block
+form, the implementation works with
+
+```math
+L_{\mathrm{block}}
+=
+\begin{pmatrix}
+\kappa(\mathcal X-x_0I) & A \\
+A^\dagger & -\kappa(\mathcal X-x_0I)
+\end{pmatrix}.
+```
+
+For a Hermitian matrix $H$, an LDL factorization gives
+
+```math
+H
+=
+LDL^\dagger,
+```
+
+where $L$ is triangular and $D$ is block diagonal, with $1\times1$ and
+$2\times2$ pivot blocks.
+
+Sylvester's law of inertia states that a congruence transformation preserves
+the numbers of positive, negative, and zero eigenvalues. Therefore,
+
+```math
+\operatorname{inertia}(H)
+=
+\operatorname{inertia}(D).
+```
+
+The signature can therefore be found by inspecting the small blocks of $D$,
+avoiding a full diagonalization of the localizer. The package handles the sign
+convention associated with the chosen block ordering internally.
+
+The accelerated implementation also supports:
+
+- adaptive one-dimensional refinement near index changes;
+- inexpensive updates when only $x_0$ changes;
+- inexpensive updates when only $\lambda_0$ changes;
+- parallel coarse-grid and refined-cell calculations for complex-frequency
+  scans.
+
+## Liouvillian eigenmode delocalization
+
+For a right or left Liouvillian eigenmode
+$\lvert \psi_a \rangle\rangle$, its weight in tensor-rank sector $k$ is
+
+```math
+w_k^{(a)}
+=
+\sum_{q=-k}^{k}
+\left|
+\langle\langle
+T_q^{(k)}
+\rvert
+\psi_a
+\rangle\rangle
+\right|^2.
+```
+
+The numerical profiles are normalized so that
+
+```math
+\sum_k w_k^{(a)}
+=
+1.
+```
+
+These distributions quantify how strongly an eigenmode is localized or
+delocalized along the emergent $k$-chain. The package computes the profiles
+for both left and right Liouvillian eigenvectors.
+
+## Package modules
+
+The installable Python package is located under `src/`.
+
+| Module | Purpose |
+| --- | --- |
+| `spectral_localizer.btc_model` | BTC parameters, collective-spin operators, Liouvillian construction, and operator-space coordinates |
+| `spectral_localizer.standard_localizer` | Direct localizer construction, gap, and signature-based index |
+| `spectral_localizer.fast_localizer` | LDL inertia calculation and adaptive rank-coordinate sweeps |
+| `spectral_localizer.kq_basis` | Construction of the spherical-tensor $(k,q)$ basis |
+| `spectral_localizer.mode_tools` | Left/right eigensystems and tensor-rank weight profiles |
+| `spectral_localizer.mode_table` | Sorting, displaying, and saving Liouvillian eigenvalue tables |
+| `run_utils.run_manager` | Creation of sequential `run_###` output directories |
+
+The most commonly used classes and functions are re-exported from
+`spectral_localizer`.
 
 ## Repository structure
 
@@ -433,8 +480,8 @@ spectral-localizer-boundary-time-crystal/
 
 ## Generating results
 
-Run scripts from the repository root so that their relative input and output
-paths resolve correctly.
+Run scripts from the repository root so that relative input and output paths
+resolve correctly.
 
 The scripts currently use configuration constants near the top of each file
 rather than command-line arguments. Review values such as `N_SPINS`, `KAPPA`,
@@ -457,8 +504,8 @@ scripts load an existing dataset selected by their `RUN` constant and save
 figures inside that run's `figures/` directory.
 
 Some default calculations use dense Liouvillians, large localizers, fine
-two-dimensional grids, or several parallel workers. Check the parameters before
-running them on machines with limited memory.
+two-dimensional grids, or several parallel workers. Check the parameters
+before running them on machines with limited memory.
 
 ## Main-figure workflows
 
@@ -478,8 +525,8 @@ python generate/topology/domains/plot_topological_domains.py
 
 ### Topological islands in the complex-frequency plane
 
-Generate adaptive maps of
-$\nu^L(x_0,\lambda_0)$ for selected dissipation strengths:
+Generate adaptive maps of $\nu^L(x_0,\lambda_0)$ for selected dissipation
+strengths:
 
 ```bash
 python generate/topology/islands/generate_topological_islands.py
@@ -572,8 +619,8 @@ The accompanying plotting scripts produce:
 - finite-size saturation plots;
 - comparisons between numerical and analytical mixed-state dynamics.
 
-Run the desired plotting script after setting its `RUN` constant to a compatible
-dataset.
+Run the desired plotting script after setting its `RUN` constant to a
+compatible dataset.
 
 ## Citation
 
