@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Tuple
+from typing import Callable
 
 import numpy as np
 import scipy.linalg as sla
 
-
 # LDL inertia utilities
+
 
 def inertia_from_ldl_D(D: np.ndarray, tol: float = 1e-10) -> tuple[int, int, int]:
     """
@@ -54,8 +54,8 @@ def localizer_index_ldl(L_loc: np.ndarray, zero_tol: float = 1e-10) -> int:
     return -int((pos - neg) // 2)
 
 
-
 # Precomputation class (cheap x0 updates)
+
 
 class LocalizerPrecomp:
     """
@@ -72,7 +72,16 @@ class LocalizerPrecomp:
 
     This turns each x0 step into O(N) diagonal update + LDL factorization.
     """
-    def __init__(self, L_mat: np.ndarray, X: np.ndarray, lam0: complex, kappa: float, *, verbose: bool = False):
+
+    def __init__(
+        self,
+        L_mat: np.ndarray,
+        X: np.ndarray,
+        lam0: complex,
+        kappa: float,
+        *,
+        verbose: bool = False,
+    ):
         self.N = int(L_mat.shape[0])
         self.kappa = float(kappa)
 
@@ -88,7 +97,10 @@ class LocalizerPrecomp:
         Xk = self.kappa * Xh.astype(complex, copy=False)
 
         if verbose:
-            print(f"||A|| = {np.linalg.norm(A):.3e}, ||kappa*X|| = {np.linalg.norm(Xk):.3e}")
+            print(
+                f"||A|| = {np.linalg.norm(A):.3e},
+                  ||kappa*X|| = {np.linalg.norm(Xk):.3e}"
+            )
 
         # Base localizer at x0 = 0
         L0 = np.empty((2 * N, 2 * N), dtype=complex)
@@ -102,7 +114,7 @@ class LocalizerPrecomp:
 
         # Precompute diagonal index arrays for in-place updates
         ii = np.arange(N)
-        self._tl = (ii, ii)          # TL diag indices
+        self._tl = (ii, ii)  # TL diag indices
         self._br = (N + ii, N + ii)  # BR diag indices
 
     def set_x0(self, x0: float) -> None:
@@ -130,6 +142,7 @@ def idx_at_x0(pre: LocalizerPrecomp, x0: float, zero_tol: float) -> int:
 
 
 # Adaptive 1D sweep in x0
+
 
 def adaptive_index_sweep(
     L_mat: np.ndarray,
@@ -194,8 +207,8 @@ def adaptive_index_sweep(
     return x, idx
 
 
-
 # Integration with btc_model.py
+
 
 @dataclass(frozen=True)
 class FastLocalizerConfig:
@@ -218,15 +231,19 @@ def compute_idx_curve_for_gamma(
     cfg: FastLocalizerConfig = FastLocalizerConfig(),
 ) -> tuple[float, np.ndarray, np.ndarray]:
     """
-    Worker: build Liouvillian for this gamma, run adaptive sweep, return (gamma, x, idx).
+    Worker: build Liouvillian for this gamma, run adaptive sweep,
+      return (gamma, x, idx).
 
     build_L is the output of build_liouvillian_builder(params) from btc_model.py:
       build_L(gamma) -> L_mat
     """
     L_mat = build_L(float(gamma))
     x, idx = adaptive_index_sweep(
-        L_mat, X, lam0,
-        x_min=x_min, x_max=x_max,
+        L_mat,
+        X,
+        lam0,
+        x_min=x_min,
+        x_max=x_max,
         kappa=cfg.kappa,
         zero_tol=cfg.zero_tol,
         n_coarse=cfg.n_coarse,

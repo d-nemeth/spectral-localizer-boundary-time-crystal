@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+
 import numpy as np
 import qutip as qt
 
@@ -8,6 +9,7 @@ import qutip as qt
 @dataclass(frozen=True)
 class BTCParams:
     """Model parameters for the collective-spin BTC model."""
+
     N_spins: int = 10
     omega: float = 1.0
 

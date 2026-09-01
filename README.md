@@ -1,173 +1,596 @@
-# Physics Background
+# Spectral Localizer for Topological Boundary Time Crystals
 
-Boundary time crystals (BTCs) are non-equilibrium phases that emerge in open
-many-body quantum systems due to the interplay of coherent dynamics and
-dissipation.
+This repository contains the numerical implementation used to study topological
+boundary time crystal (BTC) oscillations in dissipative collective-spin systems.
 
-The **spectral localizer** provides a powerful diagnostic tool for identifying
-topological structure in non-Hermitian operators such as Liouvillians.
-In this project, the spectral localizer is applied in **operator space**
-to characterize the structure of Liouvillian eigenmodes associated with
-boundary time crystal oscillations.
+The project provides tools to:
 
-The methods implemented here allow one to:
+- construct the BTC Liouvillian using QuTiP;
+- organize operator space into angular-momentum rank sectors;
+- compute spectral-localizer indices and localizer gaps;
+- accelerate index calculations using LDL factorization and matrix inertia;
+- resolve left and right Liouvillian eigenmodes along the emergent rank chain;
+- generate topological-domain and complex-frequency-island datasets;
+- simulate spin-correlation time series and their harmonic scaling;
+- reproduce the associated main and supplemental figures.
 
-- compute spectral localizer indices for Liouvillian superoperators
-- visualize topological domains across an emergent chain
-- visualize topological islands in the complex frequency plane
+## Physical model
 
-# Citation
+The model consists of \(N\) collectively coupled spin-\(\tfrac12\) particles in
+the permutation-symmetric sector, with total angular momentum
 
-If you use our work or build upon our code please cite our work:
+\[
+j=\frac{N}{2}.
+\]
 
-```text
-@misc{nemeth2026topologicalboundarytimecrystal,
-      title={Topological Boundary Time Crystal Oscillations}, 
-      author={Dominik Nemeth and Ahsan Nazir and Alessandro Principi and Robert-Jan Slager},
-      year={2026},
-      eprint={2602.17765},
-      archivePrefix={arXiv},
-      primaryClass={quant-ph},
-      url={https://arxiv.org/abs/2602.17765}, 
-}
-```
+Its density matrix evolves according to
 
-# Spectral Localizer for Boundary Time Crystals
+\[
+\dot{\rho}
+=
+-i[H,\rho]
++
+\frac{\Gamma}{N}
+\left(
+J_-\rho J_+
+-\frac{1}{2}\left\{J_+J_-,\rho\right\}
+\right),
+\]
 
-The code implements both standard and accelerated methods for evaluating localizer indices and visualizing the resulting topological structure of Liouvillian spectra.
+where
 
-The project provides tools for:
+\[
+H=\Omega J_x.
+\]
 
-- Constructing **Liouvillian superoperators** for collective spin models (via QuTiP)
-- Computing **spectral localizer indices** in operator space
-- Visualizing **topological domains in the complex Liouvillian spectrum**
-- Performing **efficient parameter sweeps** using fast LDL-based inertia methods
+Here, \(\Omega\) is the coherent driving frequency and \(\Gamma\) is the
+collective dissipation strength. In the code, the collapse operator is
 
-The code was developed to support research on **topological boundary time crystal oscillations** and related phenomena in dissipative quantum many-body systems.
+\[
+C=\sqrt{\frac{\Gamma}{N}}\,J_-,
+\]
 
-# Features
+and QuTiP constructs the corresponding Liouvillian superoperator
+\(\mathcal L\).
 
-The repository contains implementations of:
+The symmetric Hilbert-space dimension is \(N+1\), so the Liouvillian acts on an
+operator space of dimension \((N+1)^2\).
 
-## Liouvillian Construction
+## Operator-space rank coordinate
 
-- Collective spin models for open quantum systems
-- Weak-coupling Markovian (Lindblad) dynamics
+The collective-spin adjoint generators are
 
-## Spectral Localizer Methods
+\[
+\mathcal K_\alpha
+=
+\operatorname{spre}(J_\alpha)
+-
+\operatorname{spost}(J_\alpha),
+\qquad
+\alpha\in\{x,y,z\}.
+\]
 
-Two implementations are provided.
+Their Casimir operator is
 
-### Standard Localizer
-- Direct construction of the spectral localizer
-- Robust and straightforward
+\[
+\mathcal K^2
+=
+\mathcal K_x^2+\mathcal K_y^2+\mathcal K_z^2.
+\]
 
-### Fast Localizer
-- Uses **LDL inertia factorization**
-- Avoids full diagonalization
-- Enables efficient large parameter sweeps
+The eigenvectors of \(\mathcal K^2\) can be labelled by tensor rank \(k\) and
+magnetic index \(q\):
 
-## Diagnostics
+\[
+\mathcal K^2
+\lvert T_q^{(k)}\rangle\rangle
+=
+k(k+1)
+\lvert T_q^{(k)}\rangle\rangle,
+\]
 
-Tools for computing:
+with
 
-- Localizer index as a function of:
-  - dissipation strength
-  - rank coordinate
-  - localizer strength
+\[
+k=0,1,\ldots,N,
+\qquad
+q=-k,-k+1,\ldots,k.
+\]
 
-- 2D spectral maps showing **topological domains ("islands")**
+This decomposition turns operator space into an emergent \(k\)-chain. The
+position operator used by the spectral localizer is
 
-## Analysis
+\[
+\mathcal X
+=
+\sum_{k,q}
+k\,
+\lvert T_q^{(k)}\rangle\rangle
+\langle\langle T_q^{(k)}\rvert.
+\]
 
-### Standard
-- Topological domains across the emergent k-chain for the steady-state (Fig. 2c): `topological_domains.py`
-- Eigenmode delocalization across the chain (Fig. 4): `eigenmode_delocalization.py`
-- Topological islands in the complex-frequency plane (Fig. 3): `topological_islands.py`
+Consequently, the eigenvalue of \(\mathcal X\) identifies the tensor-rank
+position of an operator-space state.
 
-### Fast LDL optimized
-- Topological domains across the emergent k-chain for the steady-state (Fig. 2c): `fast_topological_domains.py`
-- Topological islands in the complex-frequency plane (Fig. 3): `fast_topological_islands.py`
+The package constructs this coordinate by diagonalizing \(\mathcal K^2\),
+matching its eigenvalues to \(k(k+1)\), and resolving the \(q\) labels with
+\(\mathcal K_z\).
 
+## Spectral localizer
 
-# Installation
+For a Liouvillian \(\mathcal L\), operator-space coordinate \(\mathcal X\),
+reference position \(x_0\), reference complex frequency \(\lambda_0\), and
+localizer strength \(\kappa\), define
 
-## 1. Clone the repository
+\[
+A=\mathcal L-\lambda_0 I.
+\]
 
-Recommended using **conda**:
+Its Hermitian real and imaginary parts are
+
+\[
+\operatorname{Re}A=\frac{A+A^\dagger}{2},
+\qquad
+\operatorname{Im}A=\frac{A-A^\dagger}{2i}.
+\]
+
+The spectral localizer is
+
+\[
+L_{(x_0,\lambda_0)}(\mathcal L,\mathcal X)
+=
+\operatorname{Re}A\otimes\sigma_x
++
+\operatorname{Im}A\otimes\sigma_y
++
+\kappa(\mathcal X-x_0I)\otimes\sigma_z.
+\]
+
+It is Hermitian and has dimension \(2(N+1)^2\).
+
+### Localizer index
+
+The localizer index is half of the matrix signature:
+
+\[
+\nu^L_{(x_0,\lambda_0)}
+=
+\frac{1}{2}
+\operatorname{sig}
+\left[
+L_{(x_0,\lambda_0)}
+\right],
+\]
+
+where
+
+\[
+\operatorname{sig}(L)=n_+(L)-n_-(L)
+\]
+
+and \(n_+\) and \(n_-\) are the numbers of positive and negative eigenvalues,
+respectively.
+
+A change in \(\nu^L\) marks a topological boundary in either the rank coordinate
+\(x_0\) or the complex-frequency plane \(\lambda_0\).
+
+### Localizer gap
+
+The localizer gap is
+
+\[
+\mu_{(x_0,\lambda_0)}
+=
+\min
+\left\{
+|\ell|:
+\ell\in
+\operatorname{spec}
+\left(
+L_{(x_0,\lambda_0)}
+\right)
+\right\}.
+\]
+
+The gap closes when an eigenvalue of the localizer crosses zero, allowing the
+index to change.
+
+## Standard and accelerated implementations
+
+Two localizer implementations are included.
+
+### Standard implementation
+
+`standard_localizer.py` explicitly constructs the Hermitian localizer and uses
+a full Hermitian eigensolver. It returns both the localizer gap and the index
+and serves as the reference implementation.
+
+### Fast LDL implementation
+
+`fast_localizer.py` evaluates the index through an LDL factorization. In block
+form, the implementation works with
+
+\[
+L_{\mathrm{block}}
+=
+\begin{pmatrix}
+\kappa(\mathcal X-x_0I) & A \\
+A^\dagger & -\kappa(\mathcal X-x_0I)
+\end{pmatrix}.
+\]
+
+For a Hermitian matrix \(H\), an LDL factorization gives
+
+\[
+H=LDL^\dagger,
+\]
+
+where \(L\) is triangular and \(D\) is block diagonal, with \(1\times1\) and
+\(2\times2\) pivot blocks.
+
+Sylvester's law of inertia states that a congruence transformation preserves
+the numbers of positive, negative, and zero eigenvalues. Therefore,
+
+\[
+\operatorname{inertia}(H)
+=
+\operatorname{inertia}(D).
+\]
+
+The signature can be found by inspecting the small blocks of \(D\), avoiding a
+full diagonalization of the localizer. The package handles the sign convention
+associated with the chosen block ordering internally.
+
+The accelerated implementation also supports:
+
+- adaptive one-dimensional refinement near index changes;
+- inexpensive updates when only \(x_0\) changes;
+- inexpensive updates when only \(\lambda_0\) changes;
+- parallel coarse-grid and refined-cell calculations for complex-frequency
+  scans.
+
+## Liouvillian eigenmode delocalization
+
+For a right or left Liouvillian eigenmode
+\(\lvert\psi_a\rangle\rangle\), its weight in tensor-rank sector \(k\) is
+
+\[
+w_k^{(a)}
+=
+\sum_{q=-k}^{k}
+\left|
+\langle\langle T_q^{(k)}
+\vert
+\psi_a
+\rangle\rangle
+\right|^2.
+\]
+
+The numerical profiles are normalized so that
+
+\[
+\sum_k w_k^{(a)}=1.
+\]
+
+These distributions quantify how strongly an eigenmode is localized or
+delocalized along the emergent \(k\)-chain. The package computes the profiles
+for both left and right Liouvillian eigenvectors.
+
+## Package modules
+
+The installable Python package is located under `src/`.
+
+| Module | Purpose |
+| --- | --- |
+| `spectral_localizer.btc_model` | BTC parameters, collective-spin operators, Liouvillian construction, and operator-space coordinates |
+| `spectral_localizer.standard_localizer` | Direct localizer construction, gap, and signature-based index |
+| `spectral_localizer.fast_localizer` | LDL inertia calculation and adaptive rank-coordinate sweeps |
+| `spectral_localizer.kq_basis` | Construction of the spherical-tensor \((k,q)\) basis |
+| `spectral_localizer.mode_tools` | Left/right eigensystems and tensor-rank weight profiles |
+| `spectral_localizer.mode_table` | Sorting, displaying, and saving Liouvillian eigenvalue tables |
+| `run_utils.run_manager` | Creation of sequential `run_###` output directories |
+
+The most commonly used classes and functions are re-exported from
+`spectral_localizer`.
+
+## Installation
+
+Python 3.10 or newer is required.
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/d-nemeth/spectral-localizer-boundary-time-crystal.git
 cd spectral-localizer-boundary-time-crystal
 ```
 
-## 2. Create a Python environment
-```bash
-conda create -n spectral_localizer python=3.11
-conda activate spectral_localizer
-```
+### 2. Create an environment
 
-## 3. Install Dependencies
+Using Conda:
 
 ```bash
-pip install -r requirements.txt
+conda create -n spectral-localizer python=3.11
+conda activate spectral-localizer
 ```
 
-## 4. Install the package
+Alternatively, using `venv`:
 
 ```bash
-pip install -e .
+python -m venv .venv
+source .venv/bin/activate
 ```
 
-# Project Structure
+### 3. Install the package
+
+For the package and plotting dependencies:
+
+```bash
+python -m pip install -e ".[plots]"
+```
+
+For development tools as well:
+
+```bash
+python -m pip install -e ".[plots,dev]"
+```
+
+A pinned numerical environment can instead be installed with:
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip install -e .
+```
+
+## Minimal example
+
+```python
+from spectral_localizer import (
+    BTCParams,
+    build_liouvillian_builder,
+    build_operator_space_coordinates,
+    localizer_gap_and_index,
+    spectral_localizer,
+)
+
+params = BTCParams(N_spins=10, omega=1.0)
+
+build_liouvillian = build_liouvillian_builder(params)
+liouvillian = build_liouvillian(gamma=1.0)
+
+_, rank_operator, _ = build_operator_space_coordinates(params)
+
+localizer = spectral_localizer(
+    liouvillian,
+    rank_operator,
+    lam0=0.0 + 0.0j,
+    x0=1.0,
+    kappa=1.0,
+)
+
+gap, index = localizer_gap_and_index(localizer)
+
+print(f"localizer gap: {gap}")
+print(f"localizer index: {index}")
+```
+
+## Repository structure
 
 ```text
-spectral-localizer
-├── analysis
-│   ├── fast
-│   │   ├── fast_topological_domains.py
-│   │   └── fast_topological_islands.py
-│   └── standard
-│       ├── eigenmode_delocalization.py
-│       ├── topological_domains.py
-│       └── topological_islands.py
-├── diagnostics
-│   ├── kappa_sweep_complex_plane.py
-│   ├── vary_gamma_1d_scan.py
-│   └── vary_kappa_1d_scan.py
-├── notebooks
-│   └── spectral_localizer_notebook.ipynb
+spectral-localizer-boundary-time-crystal/
+├── generate/
+│   ├── delocalization/
+│   │   ├── generate_delocalization.py
+│   │   └── plot_delocalization.py
+│   ├── diagnostics/
+│   │   ├── generate_diagnostics.py
+│   │   ├── generate_localizer_islands_diagnostics.py
+│   │   ├── generate_mode_table.py
+│   │   ├── plot_diagnostics.py
+│   │   └── plot_localizer_islands_diagnostics.py
+│   ├── spin_correlations/
+│   │   ├── generate_scaling_data.py
+│   │   ├── generate_time_series.py
+│   │   ├── plot_exponents.py
+│   │   ├── plot_harmonics.py
+│   │   ├── plot_mixed_state_analytical_vs_numerics.py
+│   │   ├── plot_saturation.py
+│   │   ├── plot_scaling.py
+│   │   ├── plot_spin_correlations.py
+│   │   ├── plot_time_series.py
+│   │   └── plot_time_series_ffts.py
+│   └── topology/
+│       ├── domains/
+│       │   ├── generate_topological_domains.py
+│       │   └── plot_topological_domains.py
+│       └── islands/
+│           ├── generate_topological_islands.py
+│           └── plot_topological_islands.py
+├── main_figures_datasets/
+│   ├── delocalization/
+│   ├── eigenmode_tables/
+│   ├── topological_domains/
+│   └── topological_islands/
+├── supplemental_figures_datasets/
+│   ├── localizer_islands/
+│   ├── localizer_scans/
+│   ├── spin_correlations_scaling_data/
+│   └── spin_correlations_time_series_data/
+├── src/
+│   ├── run_utils/
+│   │   └── run_manager.py
+│   └── spectral_localizer/
+│       ├── __init__.py
+│       ├── btc_model.py
+│       ├── fast_localizer.py
+│       ├── kq_basis.py
+│       ├── mode_table.py
+│       ├── mode_tools.py
+│       └── standard_localizer.py
 ├── pyproject.toml
-├── README.md
 ├── requirements.txt
-└── src
-     └── spectral_localizer
-        ├── __init__.py
-        ├── __pycache__
-        ├── btc_model.py
-        ├── fast_localizer.py
-        ├── kq_basis.py
-        ├── mode_tools.py
-        └── standard_localizer.py
+└── README.md
 ```
 
-# Running Diagnostics
+## Generating results
 
-## Topological Domains
+Run scripts from the repository root so that their relative input and output
+paths resolve correctly.
 
-- Compute the spectral localizer index as a function of dissipation strength using `python diagnostics/vary_gamma_1d_scan.py`.
+The scripts currently use configuration constants near the top of each file
+rather than command-line arguments. Review values such as `N_SPINS`, `KAPPA`,
+`N_JOBS`, parameter grids, and `RUN` before execution.
 
-- Compute the spectral localizer index as a function of the localizer strength using `python diagnostics/vary_kappa_1d_scan.py`.
+### Output convention
 
-## Topological Islands
+Dataset generators create the next available numbered directory:
 
-- Compute the localizer index as a function of the localizer strength using `python diagnostics/kappa_sweep_complex_plane.py`.
+```text
+<dataset-directory>/
+└── run_###/
+    ├── data.npz or data.pkl
+    ├── info.json
+    └── figures/
+```
 
+`info.json` records the numerical parameters and runtime metadata. Plotting
+scripts load an existing dataset selected by their `RUN` constant and save
+figures inside that run's `figures/` directory.
 
+Some default calculations use dense Liouvillians, large localizers, fine
+two-dimensional grids, or several parallel workers. Check the parameters before
+running them on machines with limited memory.
 
+## Main-figure workflows
 
+### Topological domains along the rank chain
 
+Generate the spectral-localizer index as a function of \(x_0\):
 
+```bash
+python generate/topology/domains/generate_topological_domains.py
+```
 
+Select the generated run in `plot_topological_domains.py`, then plot it:
 
+```bash
+python generate/topology/domains/plot_topological_domains.py
+```
 
+### Topological islands in the complex-frequency plane
+
+Generate adaptive maps of
+\(\nu^L(x_0,\lambda_0)\) for selected dissipation strengths:
+
+```bash
+python generate/topology/islands/generate_topological_islands.py
+```
+
+Select the run and plot the index maps together with the Liouvillian spectrum:
+
+```bash
+python generate/topology/islands/plot_topological_islands.py
+```
+
+### Left and right eigenmode delocalization
+
+Generate tensor-rank profiles:
+
+```bash
+python generate/delocalization/generate_delocalization.py
+```
+
+Select the run and plot the left/right profiles:
+
+```bash
+python generate/delocalization/plot_delocalization.py
+```
+
+### Liouvillian eigenmode tables
+
+Generate sorted CSV and plain-text eigenvalue tables:
+
+```bash
+python generate/diagnostics/generate_mode_table.py
+```
+
+The tables are written to `main_figures_datasets/eigenmode_tables/`.
+
+## Supplemental diagnostics
+
+### One-dimensional localizer scans
+
+`generate_diagnostics.py` supports dissipation-strength and localizer-strength
+scans. Set its `MODE` constant to either `gamma_scan` or `kappa_scan`, then run:
+
+```bash
+python generate/diagnostics/generate_diagnostics.py
+```
+
+Plot a selected run with:
+
+```bash
+python generate/diagnostics/plot_diagnostics.py
+```
+
+The resulting panels show both the index \(\nu^L(x_0)\) and localizer gap
+\(\mu(x_0)\).
+
+### Localizer-island convergence with \(\kappa\)
+
+Generate complex-frequency maps for several localizer strengths:
+
+```bash
+python generate/diagnostics/generate_localizer_islands_diagnostics.py
+```
+
+Plot the index and gap maps:
+
+```bash
+python generate/diagnostics/plot_localizer_islands_diagnostics.py
+```
+
+## Spin-correlation workflows
+
+Generate representative time-series data:
+
+```bash
+python generate/spin_correlations/generate_time_series.py
+```
+
+Generate finite-size and dissipation-scaling data:
+
+```bash
+python generate/spin_correlations/generate_scaling_data.py
+```
+
+The accompanying plotting scripts produce:
+
+- time-domain rank-\(1\), rank-\(2\), and rank-\(3\) signals;
+- Fourier spectra and harmonic peak locations;
+- amplitude scaling with dissipation;
+- fitted scaling exponents;
+- finite-size saturation plots;
+- comparisons between numerical and analytical mixed-state dynamics.
+
+Run the desired plotting script after setting its `RUN` constant to a compatible
+dataset.
+
+## Citation
+
+If you use this code or build upon this work, please cite:
+
+```bibtex
+@misc{nemeth2026topologicalboundarytimecrystal,
+  title         = {Topological Boundary Time Crystal Oscillations},
+  author        = {Dominik Nemeth and Ahsan Nazir and Alessandro Principi and Robert-Jan Slager},
+  year          = {2026},
+  eprint        = {2602.17765},
+  archivePrefix = {arXiv},
+  primaryClass  = {quant-ph},
+  url           = {https://arxiv.org/abs/2602.17765}
+}
+```
+
+## License
+
+The Python package metadata declares this project under the MIT License.

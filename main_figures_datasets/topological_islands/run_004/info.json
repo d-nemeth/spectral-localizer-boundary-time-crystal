@@ -1,0 +1,57 @@
+{
+    "run_name": "run_004",
+    "date": "2026-05-15 13:28:08",
+    "runtime_seconds": 1.0272577081341296,
+    "params": {
+        "N_spins": 10,
+        "omega": 1.0
+    },
+    "kappa": 1.0,
+    "zero_tol": 1e-08,
+    "n_jobs": 8,
+    "x0": 1.0,
+    "gamma_low": 0.2,
+    "gamma_high": 5.0,
+    "low_panel_resolution": {
+        "n_coarse": 30,
+        "n_refine": 5
+    },
+    "high_panel_resolution": {
+        "n_coarse": 10,
+        "n_refine": 2
+    },
+    "panel_specs": [
+        {
+            "label": "a",
+            "gamma": 0.2,
+            "x0": 1.0,
+            "re": [
+                -0.1,
+                0.01
+            ],
+            "im": [
+                -2.5,
+                2.5
+            ],
+            "n_coarse": 30,
+            "n_refine": 5
+        },
+        {
+            "label": "b",
+            "gamma": 5.0,
+            "x0": 1.0,
+            "re": [
+                -5.0,
+                0.5
+            ],
+            "im": [
+                -5.0,
+                5.0
+            ],
+            "n_coarse": 10,
+            "n_refine": 2
+        }
+    ],
+    "parallelized_over": "grid_rows_and_refined_cells",
+    "description": "Adaptive fast spectral localizer island scans."
+}

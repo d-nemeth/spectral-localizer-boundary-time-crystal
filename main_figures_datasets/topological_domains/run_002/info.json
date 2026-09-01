@@ -1,0 +1,28 @@
+{
+    "run_name": "run_002",
+    "date": "2026-05-15 10:34:14",
+    "runtime_seconds": 2.5286345419008285,
+    "parallelized_over": "gamma",
+    "n_jobs": 8,
+    "params": {
+        "N_spins": 10,
+        "omega": 1.0
+    },
+    "gamma_list": [
+        0.0,
+        1.0,
+        5.0
+    ],
+    "mode_idx": 3,
+    "kappa": 1.0,
+    "x_min": 0.0,
+    "x_max": 5.0,
+    "fast_localizer_config": {
+        "kappa": 1.0,
+        "zero_tol": 1e-10,
+        "n_coarse": 100,
+        "max_refine": 80,
+        "refine_only_changes": true
+    },
+    "description": "Fast spectral-localizer topological-domain scan."
+}

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import numpy as np
 
 
@@ -39,7 +40,9 @@ def spectral_localizer(
     return L_loc
 
 
-def localizer_gap_and_index(L_loc: np.ndarray, zero_tol: float = 1e-8) -> tuple[float, int]:
+def localizer_gap_and_index(
+    L_loc: np.ndarray, zero_tol: float = 1e-8
+) -> tuple[float, int]:
     """
     Compute the localizer gap mu = min|eig| and index = signature/2.
     Uses full eigvalsh (reference method).

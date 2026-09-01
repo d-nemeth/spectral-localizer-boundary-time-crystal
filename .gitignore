@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.ruff_cache/
 
 # Compiled extensions
 *.so
@@ -28,11 +29,15 @@ env/
 *.hdf5
 *.pdf
 *.png
+ruff_report.txt
 
 # Project outputs
 checkpoints_localizer/
 outputs/
 figures/
+
+# Old workspaces
+exploratory_old/
 
 # Temporary files
 *.log

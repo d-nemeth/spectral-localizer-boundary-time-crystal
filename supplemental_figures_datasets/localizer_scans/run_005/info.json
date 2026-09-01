@@ -1,0 +1,28 @@
+{
+    "run_name": "run_005",
+    "run_dir": "supplemental_figures_datasets/localizer_scans/run_005",
+    "figures_dir": "supplemental_figures_datasets/localizer_scans/run_005/figures",
+    "date": "2026-05-15 17:47:21",
+    "runtime_seconds": 1.2508048750460148,
+    "mode": "kappa_scan",
+    "sweep_parameter": "kappa",
+    "sweep_values": [
+        0.01,
+        0.1,
+        0.5,
+        1.0,
+        2.0,
+        5.0
+    ],
+    "fixed_gamma": 1.0,
+    "fixed_kappa": null,
+    "lambda0_real": 0.0,
+    "lambda0_imag": 0.0,
+    "zero_tol": 1e-08,
+    "Nk": 480,
+    "params": {
+        "N_spins": 5,
+        "omega": 1.0
+    },
+    "description": "1D spectral localizer diagnostics versus x0."
+}

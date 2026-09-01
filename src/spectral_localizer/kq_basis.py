@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 import numpy as np
+
 
 def build_kq_basis_from_casimir_and_Q(
     K2_mat: np.ndarray,
@@ -7,7 +9,7 @@ def build_kq_basis_from_casimir_and_Q(
     j: float,
 ) -> tuple[list[np.ndarray], list[tuple[int, int]], np.ndarray]:
     K2 = 0.5 * (K2_mat + K2_mat.conj().T)
-    Q  = 0.5 * (Q_mat  + Q_mat.conj().T)
+    Q = 0.5 * (Q_mat + Q_mat.conj().T)
 
     evals, U = np.linalg.eigh(K2)
     evals = evals.real

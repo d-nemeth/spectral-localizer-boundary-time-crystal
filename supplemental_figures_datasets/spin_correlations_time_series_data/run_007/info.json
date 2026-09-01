@@ -1,0 +1,40 @@
+{
+    "run_name": "run_007",
+    "date": "2026-05-22 15:06:26",
+    "Omega": 1.0,
+    "N_list": [
+        10,
+        320
+    ],
+    "Gamma_list": [
+        0.1,
+        0.5,
+        1
+    ],
+    "T": 100,
+    "n_steps": 10000,
+    "save_raw_signals": true,
+    "parallelization": {
+        "backend": "loky",
+        "n_jobs": 6
+    },
+    "solver": {
+        "type": "qutip.mesolve",
+        "method": "adams",
+        "atol": 1e-09,
+        "rtol": 1e-07,
+        "nsteps": 10000
+    },
+    "observables": {
+        "A1": "rank-1 intensive observable",
+        "A2": "rank-2 intensive irreducible tensor-like observable",
+        "A3": "rank-3 intensive irreducible tensor-like observable"
+    },
+    "frequency_channels": {
+        "A1": "Omega",
+        "A2": "2 Omega",
+        "A3": "3 Omega"
+    },
+    "fft_method": "unwindowed FFT with DC subtraction",
+    "description": "BTC time-series dataset for representative dissipation strengths."
+}

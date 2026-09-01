@@ -1,5 +1,16 @@
 numpy
 scipy
 matplotlib
-joblib
 qutip
+joblib
+tqdm
+
+[dev]
+black
+ruff
+mypy
+pytest
+ipykernel
+
+[plots]
+scienceplots

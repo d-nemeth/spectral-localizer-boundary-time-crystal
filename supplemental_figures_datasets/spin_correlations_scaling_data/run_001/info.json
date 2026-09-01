@@ -1,0 +1,37 @@
+{
+    "run_name": "run_001",
+    "date": "2026-05-20 09:11:16",
+    "Omega": 1.0,
+    "N_list": [
+        20,
+        40,
+        80
+    ],
+    "Gamma_list": [
+        0.01,
+        0.015336077187700116,
+        0.02351952635070959,
+        0.036069727153262905,
+        0.05531681197617227,
+        0.08483428982440722,
+        0.13010252169108316,
+        0.19952623149688797
+    ],
+    "T": 100,
+    "n_steps": 2000,
+    "save_raw_signals": true,
+    "parallelization": {
+        "backend": "loky",
+        "n_jobs": 4
+    },
+    "solver": {
+        "type": "qutip.mesolve",
+        "method": "adams",
+        "atol": 1e-09,
+        "rtol": 1e-07,
+        "nsteps": 10000
+    },
+    "fft_method": "real FFT (rFFT) with DC subtraction and local peak extraction",
+    "fft_peak_search_window": 0.2,
+    "description": "Spin-correlation scaling dataset for BTC harmonic response."
+}

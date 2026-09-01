@@ -1,0 +1,16 @@
+{
+    "run_name": "run_003",
+    "date": "2026-05-14 19:19:24",
+    "runtime_seconds": 0.005936000030487776,
+    "params": {
+        "N_spins": 5,
+        "omega": 1.0
+    },
+    "gammas": [
+        1.0,
+        2.0
+    ],
+    "mode_idx": 0,
+    "basis": "spherical_tensor_basis",
+    "description": "Tensor-rank delocalization profiles for left/right Liouvillian eigenmodes."
+}

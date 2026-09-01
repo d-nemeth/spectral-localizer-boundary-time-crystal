@@ -1,8 +1,11 @@
+README.md
 pyproject.toml
+src/run_utils/run_manager.py
 src/spectral_localizer/__init__.py
 src/spectral_localizer/btc_model.py
 src/spectral_localizer/fast_localizer.py
 src/spectral_localizer/kq_basis.py
+src/spectral_localizer/mode_table.py
 src/spectral_localizer/mode_tools.py
 src/spectral_localizer/standard_localizer.py
 src/spectral_localizer.egg-info/PKG-INFO

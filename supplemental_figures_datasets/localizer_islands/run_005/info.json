@@ -1,0 +1,32 @@
+{
+    "run_name": "run_005",
+    "run_dir": "supplemental_figures_datasets/localizer_islands/run_005",
+    "figures_dir": "supplemental_figures_datasets/localizer_islands/run_005/figures",
+    "date": "2026-05-15 10:08:01",
+    "runtime_seconds": 2.7770880840253085,
+    "diagnostic": "localizer_islands_scan",
+    "parallelized_over": "kappa",
+    "n_jobs": 8,
+    "params": {
+        "N_spins": 10,
+        "omega": 1.0
+    },
+    "gamma": 1.0,
+    "kappa_vals": [
+        0.01,
+        0.1,
+        0.5,
+        1.0,
+        2.0,
+        5.0
+    ],
+    "x0": 1.0,
+    "zero_tol": 1e-08,
+    "re_grid_min": -0.15,
+    "re_grid_max": 0.0,
+    "re_grid_points": 18,
+    "im_grid_min": -1.5,
+    "im_grid_max": 1.5,
+    "im_grid_points": 18,
+    "description": "Spectral-localizer island scan in the complex lambda0 plane for different kappa values."
+}
